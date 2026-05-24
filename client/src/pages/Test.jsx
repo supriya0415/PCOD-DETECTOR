@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar'
 import BG from "../../assets/BGimage.png";
 import Footer from '../components/Footer';
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export default function Test() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -29,45 +31,37 @@ export default function Test() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Auto-calculate BMI when weight or height changes
     useEffect(() => {
       if (formData.weight && formData.height) {
         const weightInKg = parseFloat(formData.weight);
-        const heightInM = parseFloat(formData.height) / 100; // Convert cm to m
+        const heightInM = parseFloat(formData.height) / 100;
         if (weightInKg > 0 && heightInM > 0) {
           const bmiValue = (weightInKg / (heightInM * heightInM)).toFixed(2);
-          setFormData(prev => ({
-            ...prev,
-            bmi: bmiValue
-          }));
+          setFormData(prev => ({ ...prev, bmi: bmiValue }));
         }
       }
     }, [formData.weight, formData.height]);
   
     const handleChange = (e) => {
       const { name, value } = e.target;
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      setFormData({ ...formData, [name]: value });
     };
   
     const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
-      setError(""); // Reset error before each submission
+      setError("");
   
-      // Prepare data for backend
       const data = {
         "Age (yrs)": formData.age,
         "Weight (Kg)": formData.weight,
         "Height(Cm)": formData.height,
         BMI: formData.bmi,
         "Blood Group": formData.bloodGroup,
-        "Cycle(R/I)": formData.cycle.toUpperCase(), // Ensure 'R' or 'I'
+        "Cycle(R/I)": formData.cycle.toUpperCase(),
         "Cycle length(days)": formData.cycleLength,
         "Marriage Status (Yrs)": formData.marriageStatus,
-        "Pregnant(Y/N)": formData.pregnant.toUpperCase(), // Convert to uppercase
+        "Pregnant(Y/N)": formData.pregnant.toUpperCase(),
         "No. of aborptions": formData.numAbortions,
         "Weight gain(Y/N)": formData.weightGain.toUpperCase(),
         "hair growth(Y/N)": formData.hairGrowth.toUpperCase(),
@@ -79,22 +73,17 @@ export default function Test() {
       };
   
       try {
-        // Send data to the backend
-        const response = await fetch("http://127.0.0.1:5000/predict", {
+        const response = await fetch(`${API}/api/predict`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
   
         const resultData = await response.json();
   
-        // Check for success or error in response
         if (resultData.error) {
           setError(resultData.error);
         } else {
-          // Navigate to Result page with the result data
           navigate("/Result", { state: { result: resultData } });
         }
       } catch (error) {
@@ -118,17 +107,11 @@ export default function Test() {
       >
         <div className="w-full max-w-2xl px-4 mx-auto">
           <div className="bg-white bg-opacity-40 rounded-xl shadow-2xl border border-pink-500 overflow-hidden">
-            {/* Header */}
             <div className="bg-[#cf446d] py-5 px-6">
-              <h1 className="text-3xl font-bold text-white text-center">
-                PCOD Prediction
-              </h1>
-              <p className="text-pink-100 text-center mt-2">
-                Complete all fields below
-              </p>
+              <h1 className="text-3xl font-bold text-white text-center">PCOD Prediction</h1>
+              <p className="text-pink-100 text-center mt-2">Complete all fields below</p>
             </div>
 
-            {/* Form Content */}
             <div className="p-6 md:p-8">
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -152,10 +135,7 @@ export default function Test() {
                     { label: "Regular Exercise (Y/N)", name: "exercise", type: "text", icon: "🏃‍♀️" },
                   ].map(({ label, name, type, icon, readOnly }) => (
                     <div key={name}>
-                      <label
-                        htmlFor={name}
-                        className="block text-base font-bold text-[#cf446d] mb-1"
-                      >
+                      <label htmlFor={name} className="block text-base font-bold text-[#cf446d] mb-1">
                         {icon} {label}
                       </label>
                       <input
@@ -164,9 +144,7 @@ export default function Test() {
                         name={name}
                         value={formData[name]}
                         onChange={handleChange}
-                        className={`w-full px-3 py-2 rounded-lg border border-pink-300 focus:ring-2 focus:ring-pink-500 focus:outline-none ${
-                          name === 'bmi' ? 'bg-gray-100' : ''
-                        }`}
+                        className={`w-full px-3 py-2 rounded-lg border border-pink-300 focus:ring-2 focus:ring-pink-500 focus:outline-none ${name === 'bmi' ? 'bg-gray-100' : ''}`}
                         required
                         readOnly={readOnly}
                       />
@@ -174,14 +152,12 @@ export default function Test() {
                   ))}
                 </div>
 
-                {/* Error Message */}
                 {error && (
                   <div className="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
                     <p className="text-red-700">{error}</p>
                   </div>
                 )}
 
-                {/* Submit Button */}
                 <div className="mt-8">
                   <button
                     type="submit"
@@ -196,21 +172,17 @@ export default function Test() {
                         </svg>
                         Processing...
                       </span>
-                    ) : (
-                      "Submit Prediction"
-                    )}
+                    ) : "Submit Prediction"}
                   </button>
                 </div>
               </form>
             </div>
           </div>
-          
-          {/* Footer Note */}
+
           <div className="text-center mt-4 text-pink-700 text-sm">
             <p>Please ensure all information is accurate for the best prediction results.</p>
           </div>
         </div>
-        
       </div>
       <Footer/>
     </>

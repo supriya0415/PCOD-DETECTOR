@@ -23,6 +23,8 @@ import {
 import cycleImage from "../../assets/cycle-tracking.jpg";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 function Home2() {
   const navigate = useNavigate();
   const [lastPeriodDates, setLastPeriodDates] = useState([]);
@@ -56,7 +58,7 @@ function Home2() {
         return;
       }
 
-      const response = await axios.get("/api/period/dates", {
+      const response = await axios.get(`${API}/api/period/dates`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -84,7 +86,7 @@ function Home2() {
       }
 
       await axios.post(
-        "/api/period/dates",
+        `${API}/api/period/dates`,
         { dates: dates.map((date) => date.toISOString()) },
         {
           headers: {
@@ -274,7 +276,6 @@ function Home2() {
                 reproductive health.
               </p>
             </div>
-
             <div className="lg:w-1/3 flex justify-center">
               <img
                 src={cycleImage}
@@ -293,9 +294,7 @@ function Home2() {
               </h3>
               <div className="flex justify-center">
                 <Calendar
-                  date={
-                    lastPeriodDates[lastPeriodDates.length - 1] || new Date()
-                  }
+                  date={lastPeriodDates[lastPeriodDates.length - 1] || new Date()}
                   onChange={(date) => handleDateSelection(date)}
                   className="rounded-lg border border-gray-200"
                 />
@@ -305,8 +304,7 @@ function Home2() {
                   Click on dates to mark the start of your period.
                   {lastPeriodDates.length < 3 && (
                     <span className="block mt-1 text-[#ad3559] font-medium">
-                      Select {3 - lastPeriodDates.length} more date(s) for
-                      predictions.
+                      Select {3 - lastPeriodDates.length} more date(s) for predictions.
                     </span>
                   )}
                 </p>
@@ -406,14 +404,6 @@ function Home2() {
                         Cycle Length Trends
                       </h4>
                       <div className="bg-white border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                          <div className="flex items-center">
-                            <div className="h-3 w-3 rounded-full bg-[#cf446d] mr-2"></div>
-                            <span className="text-sm text-gray-600">Cycle Length (days)</span>
-                          </div>
-                          <div className="text-xs text-gray-500 italic">Hover for details</div>
-                        </div>
-                        
                         <ResponsiveContainer width="100%" height={250}>
                           <AreaChart data={calculateIntervals()} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
                             <defs>
@@ -423,108 +413,33 @@ function Home2() {
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                            <XAxis 
-                              dataKey="name" 
-                              stroke="#9ca3af" 
-                              tick={{ fontSize: 12 }}
-                              tickMargin={10}
-                            />
-                            <YAxis 
-                              stroke="#9ca3af" 
-                              tick={{ fontSize: 12 }}
-                              domain={[0, dataMax => Math.max(dataMax, 35)]}
-                              tickCount={8}
-                            >
-                              <Label 
-                                value="Days" 
-                                position="insideLeft" 
-                                angle={-90} 
-                                style={{ textAnchor: 'middle', fill: '#9ca3af', fontSize: 12 }}
-                              />
+                            <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} tickMargin={10} />
+                            <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} domain={[0, dataMax => Math.max(dataMax, 35)]} tickCount={8}>
+                              <Label value="Days" position="insideLeft" angle={-90} style={{ textAnchor: 'middle', fill: '#9ca3af', fontSize: 12 }} />
                             </YAxis>
                             <Tooltip content={<CustomTooltip />} />
-                            <ReferenceLine 
-                              y={28} 
-                              stroke="#10b981" 
-                              strokeDasharray="3 3"
-                              strokeWidth={2}
-                            >
-                              <Label 
-                                value="Regular" 
-                                position="right" 
-                                fill="#10b981"
-                              />
+                            <ReferenceLine y={28} stroke="#10b981" strokeDasharray="3 3" strokeWidth={2}>
+                              <Label value="Regular" position="right" fill="#10b981" />
                             </ReferenceLine>
-                            <Area 
-                              type="monotone" 
-                              dataKey="interval" 
-                              name="Days" 
-                              stroke="#cf446d" 
-                              strokeWidth={3}
-                              fillOpacity={1}
-                              fill="url(#colorInterval)"
-                              activeDot={{ r: 8, stroke: '#ad3559', strokeWidth: 2, fill: '#fff' }}
-                            />
+                            <Area type="monotone" dataKey="interval" name="Days" stroke="#cf446d" strokeWidth={3} fillOpacity={1} fill="url(#colorInterval)" activeDot={{ r: 8, stroke: '#ad3559', strokeWidth: 2, fill: '#fff' }} />
                           </AreaChart>
                         </ResponsiveContainer>
-                        
-                        <div className="flex justify-center gap-4 mt-3 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <div className="h-2 w-4 bg-green-500 mr-1 rounded-sm"></div>
-                            <span>Regular cycle (28 days)</span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="h-2 w-4 bg-[#cf446d] opacity-80 mr-1 rounded-sm"></div>
-                            <span>Your cycle length</span>
-                          </div>
-                        </div>
                       </div>
-                      
+
                       {isCycleRegular() === "Irregular" && (
                         <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                          <div className="flex items-start space-x-3">
-                            <div className="text-amber-500 mt-1">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="w-5 h-5"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                            <div>
-                              <h5 className="text-amber-800 font-medium">
-                                Your cycle appears to be irregular
-                              </h5>
-                              <p className="text-amber-700 text-sm mt-1">
-                                More detailed tracking can help you better
-                                understand your body's patterns.
-                              </p>
-                              <button
-                                onClick={handleDetailedTracking}
-                                className="mt-3 text-white bg-[#cf446d] px-4 py-2 rounded-md text-sm hover:bg-[#ad3559] transition-colors flex items-center"
-                              >
-                                <span>Go to Detailed Tracking</span>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="w-4 h-4 ml-2"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
+                          <h5 className="text-amber-800 font-medium">
+                            Your cycle appears to be irregular
+                          </h5>
+                          <p className="text-amber-700 text-sm mt-1">
+                            More detailed tracking can help you better understand your body's patterns.
+                          </p>
+                          <button
+                            onClick={handleDetailedTracking}
+                            className="mt-3 text-white bg-[#cf446d] px-4 py-2 rounded-md text-sm hover:bg-[#ad3559] transition-colors"
+                          >
+                            Go to Detailed Tracking
+                          </button>
                         </div>
                       )}
                     </div>
@@ -532,12 +447,8 @@ function Home2() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <p className="text-gray-400 mb-4">
-                    No period dates selected yet.
-                  </p>
-                  <p className="text-[#ad3559]">
-                    Use the calendar to mark your period start dates.
-                  </p>
+                  <p className="text-gray-400 mb-4">No period dates selected yet.</p>
+                  <p className="text-[#ad3559]">Use the calendar to mark your period start dates.</p>
                 </div>
               )}
             </div>
@@ -550,7 +461,3 @@ function Home2() {
 }
 
 export default Home2;
-
-
-
-
