@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@media print {
+  /* Hide navigation, footer, and buttons during print */
+  nav, footer, button, .tabs-container {
+    display: none !important;
+  }
+
+  /* Make sure background colors and shadows don't mess up the print */
+  body, .bg-gradient-to-b, .bg-cover {
+    background: white !important;
+    background-image: none !important;
+  }
+
+  /* Ensure tables look good */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    border: 1px solid #ccc !important;
+    padding: 8px;
+    background-color: transparent !important;
+    color: black !important;
+  }
+
+  /* Expand hidden scroll areas */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  /* Remove shadows and borders */
+  .shadow-xl, .shadow-md, .shadow-lg, .border-2 {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
